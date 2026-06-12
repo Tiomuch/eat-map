@@ -26,6 +26,19 @@ export async function initDatabase(): Promise<void> {
     );
   `);
 
+  await database.execAsync(`PRAGMA foreign_keys = ON;`);
+
+  await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS schedule_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      dish_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      category TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE
+    );
+  `);
+
   // Check if we need to seed data
   const result = await database.getFirstAsync<{ count: number }>(
     'SELECT COUNT(*) as count FROM dishes',

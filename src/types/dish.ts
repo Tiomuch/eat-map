@@ -31,3 +31,12 @@ export interface UpdateDishInput {
   category?: Category;
   photoUri?: string | null;
 }
+
+export interface ScheduleItem {
+  id: number;
+  dishId: number;
+  date: string; // 'YYYY-MM-DD'
+  category: Category;
+  dishName: string;
+  dishPhotoUri: string | null;
+}

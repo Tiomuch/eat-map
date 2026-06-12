@@ -51,6 +51,20 @@ export default function DishDetailScreen() {
     }
   };
 
+  const handleSchedule = () => {
+    if (dish) {
+      router.push({
+        pathname: '/schedule/add',
+        params: {
+          dishId: dish.id,
+          dishName: dish.name,
+          dishPhoto: encodeURIComponent(dish.photoUri || ''),
+          dishCategory: dish.category,
+        },
+      } as any);
+    }
+  };
+
   if (loading) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
@@ -147,7 +161,7 @@ export default function DishDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Floating Action Buttons */}
+      {/* Floating Action Buttons — horizontal row */}
       <View style={styles.fabContainer}>
         <Animated.View entering={FadeInDown.delay(500).duration(400)}>
           <FloatingActionButton
@@ -155,6 +169,15 @@ export default function DishDetailScreen() {
             color="#FFFFFF"
             backgroundColor={colors.info}
             onPress={handleEdit}
+            size={52}
+          />
+        </Animated.View>
+        <Animated.View entering={FadeInDown.delay(550).duration(400)}>
+          <FloatingActionButton
+            icon="calendar-clock"
+            color="#FFFFFF"
+            backgroundColor={colors.warning}
+            onPress={handleSchedule}
             size={52}
           />
         </Animated.View>
@@ -296,8 +319,11 @@ const styles = StyleSheet.create({
   fabContainer: {
     position: 'absolute',
     bottom: 32,
-    right: 20,
-    gap: 14,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 18,
     alignItems: 'center',
   },
 });
