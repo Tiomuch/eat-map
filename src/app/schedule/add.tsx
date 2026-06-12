@@ -55,7 +55,6 @@ export default function AddToScheduleScreen() {
   const dishId = Number(params.dishId);
   const dishName = Array.isArray(params.dishName) ? params.dishName[0] : (params.dishName || '');
   const dishPhotoRaw = Array.isArray(params.dishPhoto) ? params.dishPhoto[0] : (params.dishPhoto || '');
-  const dishPhoto = decodeURIComponent(dishPhotoRaw);
   const dishCategory = Array.isArray(params.dishCategory) ? params.dishCategory[0] : (params.dishCategory || '');
 
   const [dayChips] = useState<DayChip[]>(buildDayChips);
@@ -131,9 +130,9 @@ export default function AddToScheduleScreen() {
             <View
               style={[styles.dishPreviewImageWrap, { backgroundColor: colors.surfaceVariant }]}
             >
-              {dishPhoto ? (
+              {dishPhotoRaw ? (
                 <Image
-                  source={{ uri: dishPhoto }}
+                  source={{ uri: dishPhotoRaw }}
                   style={styles.dishPreviewImage}
                   contentFit="cover"
                 />

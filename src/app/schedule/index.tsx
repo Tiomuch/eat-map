@@ -1,28 +1,26 @@
-import React, { useCallback, useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  Dimensions,
-  FlatList,
-  ScrollView,
-  Pressable,
-  ViewToken,
-} from 'react-native';
-import { useRouter, useFocusEffect } from 'expo-router';
-import { Image } from 'expo-image';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useTheme } from '@/theme/ThemeContext';
-import { CATEGORIES, Category, ScheduleItem } from '@/types/dish';
-import {
-  getWeekDates,
-  getScheduleForWeek,
-  removeFromSchedule,
-  cleanupPastScheduleItems,
-} from '@/db/scheduleRepository';
-import FloatingActionButton from '@/components/FloatingActionButton';
 import ConfirmModal from '@/components/ConfirmModal';
+import FloatingActionButton from '@/components/FloatingActionButton';
+import {
+  cleanupPastScheduleItems,
+  getScheduleForWeek,
+  getWeekDates,
+  removeFromSchedule,
+} from '@/db/scheduleRepository';
+import { useTheme } from '@/theme/ThemeContext';
+import { CATEGORIES, ScheduleItem } from '@/types/dish';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import {
+  Dimensions,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -128,14 +126,14 @@ function DayPage({ day, onRemoveItem }: DayPageProps) {
   const categoryOrder = CATEGORIES.filter((c) => grouped[c]);
 
   return (
-    <View style={[styles.dayPage, { height: SCREEN_HEIGHT }]}>
+    <View style={styles.dayPage}>
       {/* Day Header */}
       <Animated.View entering={FadeInDown.delay(50).duration(400)} style={styles.dayHeader}>
+        <Text style={[styles.dayName, { color: colors.text }]}>{day.dayName}</Text>
+        <Text style={[styles.dayDate, { color: colors.textTertiary }]}>{day.dateFormatted}</Text>
         {day.label !== '' && (
           <Text style={[styles.dayLabel, { color: colors.primary }]}>{day.label}</Text>
         )}
-        <Text style={[styles.dayName, { color: colors.text }]}>{day.dayName}</Text>
-        <Text style={[styles.dayDate, { color: colors.textTertiary }]}>{day.dateFormatted}</Text>
       </Animated.View>
 
       {/* Content */}
@@ -220,66 +218,57 @@ export default function ScheduleScreen() {
     }
   };
 
-  const onViewableItemsChanged = useCallback(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-        setCurrentDayIndex(viewableItems[0].index);
-      }
-    },
-    [],
-  );
-
-  const viewabilityConfig = {
-    viewAreaCoveragePercentThreshold: 50,
-  };
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <FlatList
-        data={days}
-        keyExtractor={(item) => item.date}
-        renderItem={({ item }) => (
-          <DayPage day={item} onRemoveItem={(it) => setRemoveTarget(it)} />
-        )}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        snapToInterval={SCREEN_HEIGHT}
-        decelerationRate="fast"
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        getItemLayout={(_, index) => ({
-          length: SCREEN_HEIGHT,
-          offset: SCREEN_HEIGHT * index,
-          index,
-        })}
-      />
-
-      {/* Day indicator dots */}
-      <View style={[styles.dotsContainer, { backgroundColor: colors.surface + 'CC' }]}>
-        {days.map((day, index) => (
-          <View
-            key={day.date}
-            style={[
-              styles.dot,
-              {
-                backgroundColor:
-                  index === currentDayIndex ? colors.primary : colors.border,
-                width: index === currentDayIndex ? 20 : 8,
-              },
-            ]}
-          />
-        ))}
-      </View>
+      {/* Selected Day Content */}
+      {days.length > 0 && (
+        <DayPage
+          day={days[currentDayIndex]}
+          onRemoveItem={(it) => setRemoveTarget(it)}
+        />
+      )}
 
       {/* Back button */}
       <View style={styles.backButtonContainer}>
         <FloatingActionButton
           icon="arrow-left"
           color={colors.text}
-          backgroundColor={colors.surface + 'DD'}
+          backgroundColor={colors.surfaceVariant}
           onPress={() => router.back()}
           size={44}
         />
+      </View>
+
+      {/* Bottom Tabs */}
+      <View style={styles.bottomTabsContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabsContent}
+        >
+          {days.map((day, index) => {
+            const isSelected = index === currentDayIndex;
+            return (
+              <Pressable
+                key={day.date}
+                onPress={() => setCurrentDayIndex(index)}
+                style={[
+                  styles.tab,
+                  { backgroundColor: isSelected ? colors.primary : colors.surfaceVariant }
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.tabText,
+                    { color: isSelected ? '#FFFFFF' : colors.text }
+                  ]}
+                >
+                  {day.label || day.dayName.substring(0, 3)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
       </View>
 
       {/* Remove confirmation modal */}
@@ -305,7 +294,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  bottomTabsContainer: {
+    position: 'absolute',
+    bottom: 32,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  tabsContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+    alignItems: 'center',
+  },
+  tab: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
   dayPage: {
+    flex: 1,
     paddingTop: 60,
   },
   dayHeader: {
@@ -353,7 +370,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dayCategoriesContent: {
-    paddingBottom: 40,
+    paddingBottom: 100,
   },
   categorySection: {
     marginBottom: 24,
@@ -419,24 +436,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3,
   },
-  dotsContainer: {
-    position: 'absolute',
-    right: 16,
-    top: '50%',
-    transform: [{ translateY: -60 }],
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 6,
-    gap: 8,
-    alignItems: 'center',
-  },
-  dot: {
-    height: 8,
-    borderRadius: 4,
-  },
   backButtonContainer: {
     position: 'absolute',
-    top: 52,
+    top: 56,
     left: 16,
+    zIndex: 10,
   },
 });

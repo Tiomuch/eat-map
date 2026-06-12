@@ -1,29 +1,29 @@
-import React, { useCallback, useImperativeHandle, useRef, useState, forwardRef } from 'react';
+import DishCard from '@/components/DishCard';
+import { getDishesByCategory } from '@/db/dishRepository';
+import { useTheme } from '@/theme/ThemeContext';
+import { CATEGORIES, Category, Dish } from '@/types/dish';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
 import {
-  StyleSheet,
-  View,
-  Text,
   Dimensions,
-  Pressable,
   FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
   ViewToken,
 } from 'react-native';
-import { useRouter, useFocusEffect } from 'expo-router';
-import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
 import Animated, {
+  FadeInDown,
+  FadeInUp,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withSequence,
-  FadeInDown,
-  FadeInUp,
+  withTiming
 } from 'react-native-reanimated';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useTheme } from '@/theme/ThemeContext';
-import { getDishesByCategory } from '@/db/dishRepository';
-import { CATEGORIES, Category, Dish } from '@/types/dish';
-import DishCard from '@/components/DishCard';
+import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CARD_WIDTH = SCREEN_WIDTH * 0.7;
@@ -76,7 +76,7 @@ const CategorySlider = forwardRef<CategorySliderHandle, CategorySliderProps>(
         const offset = CARD_WIDTH * 0.925 + GAP;
         const translateX = interpolate(value, [-1, 0, 1], [-offset, 0, offset]);
         const scale = interpolate(value, [-1, 0, 1], [0.85, 1, 0.85]);
-        const opacity = interpolate(value, [-1, 0, 1], [0.5, 1, 0.5]); 
+        const opacity = interpolate(value, [-1, 0, 1], [0.5, 1, 0.5]);
 
         return {
           transform: [
@@ -133,8 +133,8 @@ const CategorySlider = forwardRef<CategorySliderHandle, CategorySliderProps>(
             customAnimation={animationStyle}
             scrollAnimationDuration={600}
             renderItem={({ item, index }) => (
-              <View 
-                style={[styles.cardWrapper, { paddingHorizontal: (SCREEN_WIDTH - CARD_WIDTH) / 2 }]} 
+              <View
+                style={[styles.cardWrapper, { paddingHorizontal: (SCREEN_WIDTH - CARD_WIDTH) / 2 }]}
                 key={`${item.id}-${index}`}
               >
                 <DishCard
@@ -198,9 +198,9 @@ export default function MainScreen() {
     if (currentDishes.length === 0) return;
 
     randomScale.value = withSequence(
-      withSpring(0.85, { damping: 8, stiffness: 400 }),
-      withSpring(1.1, { damping: 8, stiffness: 400 }),
-      withSpring(1, { damping: 12, stiffness: 300 }),
+      withTiming(0.85, { duration: 200 }),
+      withTiming(1.05, { duration: 200 }),
+      withTiming(1, { duration: 200 })
     );
 
     sliderRefs.current[currentIndex]?.scrollToRandom();

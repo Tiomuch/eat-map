@@ -1,20 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  Dimensions,
-  ActivityIndicator,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Image } from 'expo-image';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
-import { useTheme } from '@/theme/ThemeContext';
-import { getDishById, deleteDish } from '@/db/dishRepository';
-import { Dish } from '@/types/dish';
-import FloatingActionButton from '@/components/FloatingActionButton';
 import ConfirmModal from '@/components/ConfirmModal';
+import FloatingActionButton from '@/components/FloatingActionButton';
+import { deleteDish, getDishById } from '@/db/dishRepository';
+import { useTheme } from '@/theme/ThemeContext';
+import { Dish } from '@/types/dish';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Dimensions,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -25,6 +28,12 @@ export default function DishDetailScreen() {
   const [dish, setDish] = useState<Dish | null>(null);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // Scroll tracking states
+  const [contentHeight, setContentHeight] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const [isAtBottom, setIsAtBottom] = useState(false);
+  const isScrollable = contentHeight > containerHeight && containerHeight > 0;
 
   useEffect(() => {
     async function load() {
@@ -63,6 +72,12 @@ export default function DishDetailScreen() {
         },
       } as any);
     }
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const isBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 10;
+    setIsAtBottom(isBottom);
   };
 
   if (loading) {
@@ -138,9 +153,32 @@ export default function DishDetailScreen() {
 
           <Animated.View entering={FadeInDown.delay(350).duration(400)}>
             <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>DESCRIPTION</Text>
-            <Text style={[styles.description, { color: colors.textSecondary }]}>
-              {dish.description || 'No description added yet.'}
-            </Text>
+            <View style={styles.descriptionContainer}>
+              <ScrollView
+                style={styles.descriptionScroll}
+                nestedScrollEnabled={true}
+                showsVerticalScrollIndicator={true}
+                scrollEventThrottle={16}
+                onScroll={handleScroll}
+                onContentSizeChange={(w, h) => setContentHeight(h)}
+                onLayout={(e) => setContainerHeight(e.nativeEvent.layout.height)}
+              >
+                <Text style={[styles.descriptionText, { color: colors.textSecondary }]}>
+                  {dish.description || 'No description added yet.'}
+                </Text>
+              </ScrollView>
+
+              {isScrollable && !isAtBottom && (
+                <Animated.View
+                  entering={FadeIn.duration(300)}
+                  exiting={FadeOut.duration(300)}
+                  style={[styles.scrollIndicator, { backgroundColor: colors.background + 'E6' }]}
+                  pointerEvents="none"
+                >
+                  <MaterialCommunityIcons name="chevron-double-down" size={24} color={colors.primary} />
+                </Animated.View>
+              )}
+            </View>
           </Animated.View>
 
           {/* Meta info */}
@@ -294,10 +332,29 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     marginBottom: 8,
   },
-  description: {
+  descriptionContainer: {
+    position: 'relative',
+    marginBottom: 24,
+  },
+  descriptionScroll: {
+    maxHeight: 220,
+    borderRadius: 8,
+  },
+  descriptionText: {
     fontSize: 17,
     lineHeight: 28,
-    marginBottom: 24,
+  },
+  scrollIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 48,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: 4,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
   },
   metaCard: {
     borderRadius: 16,

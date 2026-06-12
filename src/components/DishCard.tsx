@@ -1,11 +1,10 @@
-import React from 'react';
-import { StyleSheet, View, Text, Pressable } from 'react-native';
-import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import Animated, { FadeIn } from 'react-native-reanimated';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/ThemeContext';
 import { Dish } from '@/types/dish';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 interface DishCardProps {
   dish: Dish;
