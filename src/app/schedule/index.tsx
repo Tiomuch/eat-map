@@ -13,16 +13,13 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
-  Dimensions,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from 'react-native';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown, LinearTransition } from 'react-native-reanimated';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -89,7 +86,12 @@ function ScheduleCard({ item, onRemove }: ScheduleCardProps) {
   const { colors } = useTheme();
 
   return (
-    <Animated.View entering={FadeIn.duration(300)} style={styles.scheduleCard}>
+    <Animated.View
+      entering={FadeIn.duration(300)}
+      exiting={FadeOut.duration(300)}
+      layout={LinearTransition.springify()}
+      style={styles.scheduleCard}
+    >
       <View style={[styles.scheduleCardImageWrap, { backgroundColor: colors.surfaceVariant }]}>
         {item.dishPhotoUri ? (
           <Image source={{ uri: item.dishPhotoUri }} style={styles.scheduleCardImage} contentFit="cover" />
@@ -157,6 +159,8 @@ function DayPage({ day, onRemoveItem }: DayPageProps) {
             <Animated.View
               key={category}
               entering={FadeInDown.delay(100).duration(400)}
+              exiting={FadeOutDown.duration(300)}
+              layout={LinearTransition.springify()}
               style={styles.categorySection}
             >
               <View style={styles.categorySectionHeader}>
