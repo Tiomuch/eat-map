@@ -5,7 +5,7 @@ import {
   getScheduleForWeek,
   getWeekDates,
   removeFromSchedule,
-} from '@/db/scheduleRepository'
+} from '@/db/scheduleRepository/scheduleRepository'
 import { useTheme } from '@/theme/ThemeContext'
 import { ScheduleItem } from '@/types/dish'
 import { useFocusEffect, useRouter } from 'expo-router'

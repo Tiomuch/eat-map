@@ -3,7 +3,7 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { View, ActivityIndicator, Text } from 'react-native'
 import { useTheme } from '@/theme/ThemeContext'
-import { initDatabase } from '@/db/database'
+import { initDatabase } from '@/db/database/database'
 import { styles } from './AppContent.styles'
 
 export default function AppContent() {

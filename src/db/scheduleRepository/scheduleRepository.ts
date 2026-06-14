@@ -1,4 +1,4 @@
-import { getDatabase } from './database'
+import { getDatabase } from '../database/database'
 import { ScheduleItem, Category } from '@/types/dish'
 
 interface ScheduleRow {

@@ -1,5 +1,5 @@
 import { CategorySlider, CategorySliderHandle } from '@/components/CategorySlider/CategorySlider'
-import { getDishesByCategory } from '@/db/dishRepository'
+import { getDishesByCategory } from '@/db/dishRepository/dishRepository'
 import { useTheme } from '@/theme/ThemeContext'
 import { CATEGORIES, Category, Dish } from '@/types/dish'
 import { MaterialCommunityIcons } from '@expo/vector-icons'

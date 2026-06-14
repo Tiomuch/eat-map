@@ -11,6 +11,7 @@ interface FloatingActionButtonProps {
   onPress: () => void
   size?: number
   style?: object
+  testID?: string
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
@@ -22,6 +23,7 @@ export default function FloatingActionButton({
   onPress,
   size = 56,
   style,
+  testID,
 }: FloatingActionButtonProps) {
   const scale = useSharedValue(1)
 
@@ -42,6 +44,7 @@ export default function FloatingActionButton({
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
+      testID={testID}
       style={[
         styles.fab,
         animatedStyle,

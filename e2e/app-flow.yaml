@@ -1,0 +1,15 @@
+appId: com.artem.eatmap
+---
+- launchApp
+- assertVisible: "Eat Map"
+- tapOn:
+    id: "fab-plus"
+- assertVisible: "New Dish"
+- tapOn: "What's the dish called?"
+- inputText: "Burger"
+- tapOn: "Describe the dish, ingredients, taste..."
+- inputText: "Delicious double cheeseburger"
+- tapOn: "Lunch"
+- tapOn:
+    id: "fab-check"
+- assertVisible: "Burger"

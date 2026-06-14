@@ -1,6 +1,6 @@
 import ConfirmModal from '@/components/ConfirmModal/ConfirmModal'
 import FloatingActionButton from '@/components/FloatingActionButton/FloatingActionButton'
-import { deleteDish, getDishById } from '@/db/dishRepository'
+import { deleteDish, getDishById } from '@/db/dishRepository/dishRepository'
 import { useTheme } from '@/theme/ThemeContext'
 import { Dish } from '@/types/dish'
 import { MaterialCommunityIcons } from '@expo/vector-icons'

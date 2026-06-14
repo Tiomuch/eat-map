@@ -78,3 +78,34 @@ You are an expert in TypeScript, React Native, Expo, and Mobile App Development.
           └── [ScreenName]/
                ├── [ScreenName]Screen.tsx        # UI & Logic
                └── [ScreenName]Screen.styles.ts # Styles
+
+  - The same file structure for db folder if possible
+
+## 🧪 Automated Testing Strategy (Definition of Done)
+
+  - **Mandatory Test Generation:**
+   No component, screen, or custom hook is considered complete until it has accompanying automated tests. Whenever you create or modify code, you must automatically generate the corresponding test file.
+
+  - **Unit & UI/Component Testing (Co-location):**
+    Place unit and UI tests directly inside the folder of the component or screen they are testing. Use **Jest** and **React Native Testing Library**.
+    * **File Naming:** `[Name].test.tsx` or `[Name].spec.tsx`
+    * **Folder Structure Example:**
+      ```text
+      components/
+        └── Dish/
+             ├── Dish.tsx
+             ├── Dish.styles.ts
+             └── Dish.test.tsx      # Tests rendering, props, and user clicks
+      ```
+    * **What to test:** Ensure components render correctly with different props, empty states, and mock user interactions (presses, inputs).
+
+  - **Integration Testing (Screens & Custom Hooks):**
+    For screens and custom hooks that handle data fetching or state flow, write integration tests that mock API calls (using MSW or Jest mocks) and verify the data flow.
+    * **File Naming:** For hooks, use `[HookName].test.ts`. For screens, use `[ScreenName]Screen.test.tsx`.
+
+  - **End-to-End (E2E) / User Flow Testing:**
+    Critical user journeys (e.g., Authentication flow, Add to Cart, Checkout) must have E2E tests. 
+    * **Location:** These do NOT go into component folders. Place them in a centralized root directory: `/e2e/`.
+    * **Framework Preference:** Use the project's E2E tool (e.g., Maestro or Detox) to write high-level user flow tests.
+
+  - Include testing for db and methods

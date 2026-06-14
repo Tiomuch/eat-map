@@ -1,4 +1,4 @@
-import { getDatabase } from './database'
+import { getDatabase } from '../database/database'
 import { CreateDishInput, Dish, UpdateDishInput } from '@/types/dish'
 
 interface DishRow {
