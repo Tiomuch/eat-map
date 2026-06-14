@@ -1,25 +1,23 @@
 import React from 'react'
-import { StyleSheet, ScrollView, Pressable, Text } from 'react-native'
+import { Text, Pressable } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { useTheme } from '@/theme/ThemeContext'
-import { CATEGORIES, Category } from '@/types/dish'
+import { Category } from '@/types/dish'
+import { styles } from './CategoryChip.styles'
 
-interface CategoryPickerProps {
-  selected: Category
-  onSelect: (category: Category) => void
+interface CategoryChipProps {
+  category: Category
+  isSelected: boolean
+  onPress: () => void
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
-function CategoryChip({
+export default function CategoryChip({
   category,
   isSelected,
   onPress,
-}: {
-  category: Category
-  isSelected: boolean
-  onPress: () => void
-}) {
+}: CategoryChipProps) {
   const { colors } = useTheme()
   const scale = useSharedValue(1)
 
@@ -63,39 +61,3 @@ function CategoryChip({
     </AnimatedPressable>
   )
 }
-
-export default function CategoryPicker({ selected, onSelect }: CategoryPickerProps) {
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.container}
-    >
-      {CATEGORIES.map((category) => (
-        <CategoryChip
-          key={category}
-          category={category}
-          isSelected={selected === category}
-          onPress={() => onSelect(category)}
-        />
-      ))}
-    </ScrollView>
-  )
-}
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    gap: 10,
-  },
-  chip: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 24,
-    borderWidth: 1.5,
-  },
-  chipText: {
-    fontSize: 15,
-    letterSpacing: 0.3,
-  },
-})

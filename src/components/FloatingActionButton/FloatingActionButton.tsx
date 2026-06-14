@@ -1,7 +1,8 @@
 import React from 'react'
-import { StyleSheet, Pressable } from 'react-native'
+import { Pressable } from 'react-native'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { styles } from './FloatingActionButton.styles'
 
 interface FloatingActionButtonProps {
   icon: keyof typeof MaterialCommunityIcons.glyphMap
@@ -57,15 +58,3 @@ export default function FloatingActionButton({
     </AnimatedPressable>
   )
 }
-
-const styles = StyleSheet.create({
-  fab: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-})

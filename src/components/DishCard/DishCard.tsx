@@ -3,8 +3,9 @@ import { Dish } from '@/types/dish'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import Animated, { FadeIn } from 'react-native-reanimated'
+import { styles } from './DishCard.styles'
 
 interface DishCardProps {
   dish: Dish
@@ -79,74 +80,3 @@ export default function DishCard({
     </AnimatedPressable>
   )
 }
-
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: 20,
-    overflow: 'hidden',
-    elevation: 8,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 12,
-    width: '100%',
-    height: '100%',
-  },
-  imageContainer: {
-    flex: 1,
-    position: 'relative',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  imagePlaceholder: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  placeholderEmoji: {
-    fontSize: 64,
-  },
-  gradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '50%',
-    backgroundColor: 'transparent',
-    // Using a semi-transparent overlay instead of LinearGradient for simplicity
-  },
-  nameOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
-  },
-  dishName: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '700',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  scheduleIconButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-})
