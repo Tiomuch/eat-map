@@ -1,43 +1,39 @@
-import React from 'react';
-import { StyleSheet, ScrollView, Pressable, Text } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
-import { useTheme } from '@/theme/ThemeContext';
-import { CATEGORIES, Category } from '@/types/dish';
+import React from 'react'
+import { StyleSheet, ScrollView, Pressable, Text } from 'react-native'
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
+import { useTheme } from '@/theme/ThemeContext'
+import { CATEGORIES, Category } from '@/types/dish'
 
 interface CategoryPickerProps {
-  selected: Category;
-  onSelect: (category: Category) => void;
+  selected: Category
+  onSelect: (category: Category) => void
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 function CategoryChip({
   category,
   isSelected,
   onPress,
 }: {
-  category: Category;
-  isSelected: boolean;
-  onPress: () => void;
+  category: Category
+  isSelected: boolean
+  onPress: () => void
 }) {
-  const { colors } = useTheme();
-  const scale = useSharedValue(1);
+  const { colors } = useTheme()
+  const scale = useSharedValue(1)
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-  }));
+  }))
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.95, { damping: 15, stiffness: 400 });
-  };
+    scale.value = withSpring(0.95, { damping: 15, stiffness: 400 })
+  }
 
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15, stiffness: 400 });
-  };
+    scale.value = withSpring(1, { damping: 15, stiffness: 400 })
+  }
 
   return (
     <AnimatedPressable
@@ -65,7 +61,7 @@ function CategoryChip({
         {category}
       </Text>
     </AnimatedPressable>
-  );
+  )
 }
 
 export default function CategoryPicker({ selected, onSelect }: CategoryPickerProps) {
@@ -84,7 +80,7 @@ export default function CategoryPicker({ selected, onSelect }: CategoryPickerPro
         />
       ))}
     </ScrollView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -102,4 +98,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
     letterSpacing: 0.3,
   },
-});
+})

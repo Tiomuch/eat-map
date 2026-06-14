@@ -1,48 +1,48 @@
-import ConfirmModal from '@/components/ConfirmModal';
-import FloatingActionButton from '@/components/FloatingActionButton';
+import ConfirmModal from '@/components/ConfirmModal'
+import FloatingActionButton from '@/components/FloatingActionButton'
 import {
   cleanupPastScheduleItems,
   getScheduleForWeek,
   getWeekDates,
   removeFromSchedule,
-} from '@/db/scheduleRepository';
-import { useTheme } from '@/theme/ThemeContext';
-import { CATEGORIES, ScheduleItem } from '@/types/dish';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeOut, FadeOutDown, LinearTransition } from 'react-native-reanimated';
+} from '@/db/scheduleRepository'
+import { useTheme } from '@/theme/ThemeContext'
+import { CATEGORIES, ScheduleItem } from '@/types/dish'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { Image } from 'expo-image'
+import { useFocusEffect, useRouter } from 'expo-router'
+import { useCallback, useState } from 'react'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  FadeOut,
+  FadeOutDown,
+  LinearTransition,
+} from 'react-native-reanimated'
 
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 interface DayData {
-  date: string;
-  label: string; // "Today", "Tomorrow", or empty
-  dayName: string; // "Monday", "Friday", etc.
-  dateFormatted: string; // "June 12"
-  items: ScheduleItem[];
+  date: string
+  label: string // "Today", "Tomorrow", or empty
+  dayName: string // "Monday", "Friday", etc.
+  dateFormatted: string // "June 12"
+  items: ScheduleItem[]
 }
 
 function buildDayData(dates: string[], schedule: Record<string, ScheduleItem[]>): DayData[] {
   return dates.map((dateStr, index) => {
-    const dateObj = new Date(dateStr + 'T12:00:00'); // noon to avoid timezone issues
-    const dayName = DAY_NAMES[dateObj.getDay()];
+    const dateObj = new Date(dateStr + 'T12:00:00') // noon to avoid timezone issues
+    const dayName = DAY_NAMES[dateObj.getDay()]
     const dateFormatted = dateObj.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
-    });
+    })
 
-    let label = '';
-    if (index === 0) label = 'Today';
-    else if (index === 1) label = 'Tomorrow';
+    let label = ''
+    if (index === 0) label = 'Today'
+    else if (index === 1) label = 'Tomorrow'
 
     return {
       date: dateStr,
@@ -50,19 +50,19 @@ function buildDayData(dates: string[], schedule: Record<string, ScheduleItem[]>)
       dayName,
       dateFormatted,
       items: schedule[dateStr] || [],
-    };
-  });
+    }
+  })
 }
 
 function groupByCategory(items: ScheduleItem[]): Record<string, ScheduleItem[]> {
-  const grouped: Record<string, ScheduleItem[]> = {};
+  const grouped: Record<string, ScheduleItem[]> = {}
   for (const item of items) {
     if (!grouped[item.category]) {
-      grouped[item.category] = [];
+      grouped[item.category] = []
     }
-    grouped[item.category].push(item);
+    grouped[item.category].push(item)
   }
-  return grouped;
+  return grouped
 }
 
 const getCategoryEmoji = (cat: string): string => {
@@ -73,17 +73,17 @@ const getCategoryEmoji = (cat: string): string => {
     Salad: '🥗',
     Dessert: '🍰',
     Drink: '🥤',
-  };
-  return emojis[cat] || '🍽️';
-};
+  }
+  return emojis[cat] || '🍽️'
+}
 
 interface ScheduleCardProps {
-  item: ScheduleItem;
-  onRemove: (item: ScheduleItem) => void;
+  item: ScheduleItem
+  onRemove: (item: ScheduleItem) => void
 }
 
 function ScheduleCard({ item, onRemove }: ScheduleCardProps) {
-  const { colors } = useTheme();
+  const { colors } = useTheme()
 
   return (
     <Animated.View
@@ -94,38 +94,35 @@ function ScheduleCard({ item, onRemove }: ScheduleCardProps) {
     >
       <View style={[styles.scheduleCardImageWrap, { backgroundColor: colors.surfaceVariant }]}>
         {item.dishPhotoUri ? (
-          <Image source={{ uri: item.dishPhotoUri }} style={styles.scheduleCardImage} contentFit="cover" />
+          <Image
+            source={{ uri: item.dishPhotoUri }}
+            style={styles.scheduleCardImage}
+            contentFit="cover"
+          />
         ) : (
           <Text style={styles.scheduleCardPlaceholderEmoji}>🍽️</Text>
         )}
         {/* Red X remove button */}
-        <Pressable
-          onPress={() => onRemove(item)}
-          style={styles.removeButton}
-          hitSlop={8}
-        >
+        <Pressable onPress={() => onRemove(item)} style={styles.removeButton} hitSlop={8}>
           <MaterialCommunityIcons name="close" size={14} color="#FFFFFF" />
         </Pressable>
       </View>
-      <Text
-        style={[styles.scheduleCardName, { color: colors.text }]}
-        numberOfLines={2}
-      >
+      <Text style={[styles.scheduleCardName, { color: colors.text }]} numberOfLines={2}>
         {item.dishName}
       </Text>
     </Animated.View>
-  );
+  )
 }
 
 interface DayPageProps {
-  day: DayData;
-  onRemoveItem: (item: ScheduleItem) => void;
+  day: DayData
+  onRemoveItem: (item: ScheduleItem) => void
 }
 
 function DayPage({ day, onRemoveItem }: DayPageProps) {
-  const { colors } = useTheme();
-  const grouped = groupByCategory(day.items);
-  const categoryOrder = CATEGORIES.filter((c) => grouped[c]);
+  const { colors } = useTheme()
+  const grouped = groupByCategory(day.items)
+  const categoryOrder = CATEGORIES.filter((c) => grouped[c])
 
   return (
     <View style={styles.dayPage}>
@@ -164,9 +161,7 @@ function DayPage({ day, onRemoveItem }: DayPageProps) {
               style={styles.categorySection}
             >
               <View style={styles.categorySectionHeader}>
-                <Text style={styles.categorySectionEmoji}>
-                  {getCategoryEmoji(category)}
-                </Text>
+                <Text style={styles.categorySectionEmoji}>{getCategoryEmoji(category)}</Text>
                 <Text style={[styles.categorySectionTitle, { color: colors.text }]}>
                   {category}
                 </Text>
@@ -177,11 +172,7 @@ function DayPage({ day, onRemoveItem }: DayPageProps) {
                 contentContainerStyle={styles.cardsRow}
               >
                 {grouped[category].map((item) => (
-                  <ScheduleCard
-                    key={item.id}
-                    item={item}
-                    onRemove={onRemoveItem}
-                  />
+                  <ScheduleCard key={item.id} item={item} onRemove={onRemoveItem} />
                 ))}
               </ScrollView>
             </Animated.View>
@@ -189,47 +180,44 @@ function DayPage({ day, onRemoveItem }: DayPageProps) {
         </ScrollView>
       )}
     </View>
-  );
+  )
 }
 
 export default function ScheduleScreen() {
-  const { colors } = useTheme();
-  const router = useRouter();
-  const [days, setDays] = useState<DayData[]>([]);
-  const [currentDayIndex, setCurrentDayIndex] = useState(0);
-  const [removeTarget, setRemoveTarget] = useState<ScheduleItem | null>(null);
+  const { colors } = useTheme()
+  const router = useRouter()
+  const [days, setDays] = useState<DayData[]>([])
+  const [currentDayIndex, setCurrentDayIndex] = useState(0)
+  const [removeTarget, setRemoveTarget] = useState<ScheduleItem | null>(null)
 
   const loadSchedule = useCallback(async () => {
     // Auto-cleanup past data
-    await cleanupPastScheduleItems();
+    await cleanupPastScheduleItems()
 
-    const dates = getWeekDates();
-    const schedule = await getScheduleForWeek(dates);
-    setDays(buildDayData(dates, schedule));
-  }, []);
+    const dates = getWeekDates()
+    const schedule = await getScheduleForWeek(dates)
+    setDays(buildDayData(dates, schedule))
+  }, [])
 
   useFocusEffect(
     useCallback(() => {
-      loadSchedule();
+      loadSchedule()
     }, [loadSchedule]),
-  );
+  )
 
   const handleRemove = async () => {
     if (removeTarget) {
-      await removeFromSchedule(removeTarget.id);
-      setRemoveTarget(null);
-      await loadSchedule();
+      await removeFromSchedule(removeTarget.id)
+      setRemoveTarget(null)
+      await loadSchedule()
     }
-  };
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Selected Day Content */}
       {days.length > 0 && (
-        <DayPage
-          day={days[currentDayIndex]}
-          onRemoveItem={(it) => setRemoveTarget(it)}
-        />
+        <DayPage day={days[currentDayIndex]} onRemoveItem={(it) => setRemoveTarget(it)} />
       )}
 
       {/* Back button */}
@@ -251,26 +239,21 @@ export default function ScheduleScreen() {
           contentContainerStyle={styles.tabsContent}
         >
           {days.map((day, index) => {
-            const isSelected = index === currentDayIndex;
+            const isSelected = index === currentDayIndex
             return (
               <Pressable
                 key={day.date}
                 onPress={() => setCurrentDayIndex(index)}
                 style={[
                   styles.tab,
-                  { backgroundColor: isSelected ? colors.primary : colors.surfaceVariant }
+                  { backgroundColor: isSelected ? colors.primary : colors.surfaceVariant },
                 ]}
               >
-                <Text
-                  style={[
-                    styles.tabText,
-                    { color: isSelected ? '#FFFFFF' : colors.text }
-                  ]}
-                >
+                <Text style={[styles.tabText, { color: isSelected ? '#FFFFFF' : colors.text }]}>
                   {day.label || day.dayName.substring(0, 3)}
                 </Text>
               </Pressable>
-            );
+            )
           })}
         </ScrollView>
       </View>
@@ -279,11 +262,7 @@ export default function ScheduleScreen() {
       <ConfirmModal
         visible={removeTarget !== null}
         title="Remove from Schedule"
-        message={
-          removeTarget
-            ? `Remove "${removeTarget.dishName}" from this day's schedule?`
-            : ''
-        }
+        message={removeTarget ? `Remove "${removeTarget.dishName}" from this day's schedule?` : ''}
         confirmText="Remove"
         cancelText="Keep it"
         confirmColor={colors.danger}
@@ -291,7 +270,7 @@ export default function ScheduleScreen() {
         onCancel={() => setRemoveTarget(null)}
       />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -446,4 +425,4 @@ const styles = StyleSheet.create({
     left: 16,
     zIndex: 10,
   },
-});
+})

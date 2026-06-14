@@ -1,16 +1,16 @@
-import { useTheme } from '@/theme/ThemeContext';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import { useTheme } from '@/theme/ThemeContext'
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native'
+import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated'
 
 interface ConfirmModalProps {
-  visible: boolean;
-  title: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  confirmColor?: string;
-  onConfirm: () => void;
-  onCancel: () => void;
+  visible: boolean
+  title: string
+  message: string
+  confirmText?: string
+  cancelText?: string
+  confirmColor?: string
+  onConfirm: () => void
+  onCancel: () => void
 }
 
 export default function ConfirmModal({
@@ -23,8 +23,8 @@ export default function ConfirmModal({
   onConfirm,
   onCancel,
 }: ConfirmModalProps) {
-  const { colors } = useTheme();
-  const finalConfirmColor = confirmColor || colors.danger;
+  const { colors } = useTheme()
+  const finalConfirmColor = confirmColor || colors.danger
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onCancel}>
@@ -54,9 +54,7 @@ export default function ConfirmModal({
               onPress={onCancel}
               style={[styles.button, styles.cancelButton, { borderColor: colors.border }]}
             >
-              <Text style={[styles.buttonText, { color: colors.textSecondary }]}>
-                {cancelText}
-              </Text>
+              <Text style={[styles.buttonText, { color: colors.textSecondary }]}>{cancelText}</Text>
             </Pressable>
 
             <Pressable
@@ -69,7 +67,7 @@ export default function ConfirmModal({
         </Animated.View>
       </View>
     </Modal>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -146,4 +144,4 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: '#FFFFFF',
   },
-});
+})

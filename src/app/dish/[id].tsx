@@ -1,12 +1,12 @@
-import ConfirmModal from '@/components/ConfirmModal';
-import FloatingActionButton from '@/components/FloatingActionButton';
-import { deleteDish, getDishById } from '@/db/dishRepository';
-import { useTheme } from '@/theme/ThemeContext';
-import { Dish } from '@/types/dish';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import ConfirmModal from '@/components/ConfirmModal'
+import FloatingActionButton from '@/components/FloatingActionButton'
+import { deleteDish, getDishById } from '@/db/dishRepository'
+import { useTheme } from '@/theme/ThemeContext'
+import { Dish } from '@/types/dish'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { Image } from 'expo-image'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Dimensions,
@@ -16,49 +16,49 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated';
+} from 'react-native'
+import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 export default function DishDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
-  const { colors } = useTheme();
-  const [dish, setDish] = useState<Dish | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const router = useRouter()
+  const { colors } = useTheme()
+  const [dish, setDish] = useState<Dish | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   // Scroll tracking states
-  const [contentHeight, setContentHeight] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
-  const [isAtBottom, setIsAtBottom] = useState(false);
-  const isScrollable = contentHeight > containerHeight && containerHeight > 0;
+  const [contentHeight, setContentHeight] = useState(0)
+  const [containerHeight, setContainerHeight] = useState(0)
+  const [isAtBottom, setIsAtBottom] = useState(false)
+  const isScrollable = contentHeight > containerHeight && containerHeight > 0
 
   useEffect(() => {
     async function load() {
       if (id) {
-        const result = await getDishById(Number(id));
-        setDish(result);
+        const result = await getDishById(Number(id))
+        setDish(result)
       }
-      setLoading(false);
+      setLoading(false)
     }
-    load();
-  }, [id]);
+    load()
+  }, [id])
 
   const handleDelete = async () => {
     if (dish) {
-      await deleteDish(dish.id);
-      setShowDeleteModal(false);
-      router.back();
+      await deleteDish(dish.id)
+      setShowDeleteModal(false)
+      router.back()
     }
-  };
+  }
 
   const handleEdit = () => {
     if (dish) {
-      router.push(`/dish/edit/${dish.id}`);
+      router.push(`/dish/edit/${dish.id}`)
     }
-  };
+  }
 
   const handleSchedule = () => {
     if (dish) {
@@ -70,22 +70,22 @@ export default function DishDetailScreen() {
           dishPhoto: encodeURIComponent(dish.photoUri || ''),
           dishCategory: dish.category,
         },
-      } as any);
+      } as any)
     }
-  };
+  }
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-    const isBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 10;
-    setIsAtBottom(isBottom);
-  };
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent
+    const isBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 10
+    setIsAtBottom(isBottom)
+  }
 
   if (loading) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
-    );
+    )
   }
 
   if (!dish) {
@@ -93,15 +93,12 @@ export default function DishDetailScreen() {
       <View style={[styles.center, { backgroundColor: colors.background }]}>
         <Text style={{ color: colors.textSecondary, fontSize: 16 }}>Dish not found</Text>
       </View>
-    );
+    )
   }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Hero Image */}
         <Animated.View entering={FadeInUp.duration(500)}>
           <View style={styles.heroContainer}>
@@ -175,7 +172,11 @@ export default function DishDetailScreen() {
                   style={[styles.scrollIndicator, { backgroundColor: colors.background + 'E6' }]}
                   pointerEvents="none"
                 >
-                  <MaterialCommunityIcons name="chevron-double-down" size={24} color={colors.primary} />
+                  <MaterialCommunityIcons
+                    name="chevron-double-down"
+                    size={24}
+                    color={colors.primary}
+                  />
                 </Animated.View>
               )}
             </View>
@@ -242,7 +243,7 @@ export default function DishDetailScreen() {
         onCancel={() => setShowDeleteModal(false)}
       />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -383,4 +384,4 @@ const styles = StyleSheet.create({
     gap: 18,
     alignItems: 'center',
   },
-});
+})

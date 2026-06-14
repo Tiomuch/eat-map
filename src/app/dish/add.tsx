@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import {
   StyleSheet,
   View,
@@ -8,42 +8,42 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import * as FileSystem from 'expo-file-system/legacy';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useTheme } from '@/theme/ThemeContext';
-import { createDish } from '@/db/dishRepository';
-import { CATEGORIES, Category } from '@/types/dish';
-import ImagePickerField from '@/components/ImagePickerField';
-import CategoryPicker from '@/components/CategoryPicker';
-import FloatingActionButton from '@/components/FloatingActionButton';
+} from 'react-native'
+import { useRouter } from 'expo-router'
+import * as FileSystem from 'expo-file-system/legacy'
+import Animated, { FadeInDown } from 'react-native-reanimated'
+import { useTheme } from '@/theme/ThemeContext'
+import { createDish } from '@/db/dishRepository'
+import { CATEGORIES, Category } from '@/types/dish'
+import ImagePickerField from '@/components/ImagePickerField'
+import CategoryPicker from '@/components/CategoryPicker'
+import FloatingActionButton from '@/components/FloatingActionButton'
 
 export default function AddDishScreen() {
-  const router = useRouter();
-  const { colors } = useTheme();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<Category>(CATEGORIES[0]);
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const router = useRouter()
+  const { colors } = useTheme()
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [category, setCategory] = useState<Category>(CATEGORIES[0])
+  const [imageUri, setImageUri] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Name required', 'Please enter a dish name.');
-      return;
+      Alert.alert('Name required', 'Please enter a dish name.')
+      return
     }
 
-    setSaving(true);
+    setSaving(true)
     try {
-      let finalPhotoUri = imageUri;
+      let finalPhotoUri = imageUri
 
       // Copy image to document directory for persistence
       if (imageUri && !imageUri.startsWith(FileSystem.documentDirectory || '')) {
-        const fileName = `dish_${Date.now()}.jpg`;
-        const destUri = `${FileSystem.documentDirectory}${fileName}`;
-        await FileSystem.copyAsync({ from: imageUri, to: destUri });
-        finalPhotoUri = destUri;
+        const fileName = `dish_${Date.now()}.jpg`
+        const destUri = `${FileSystem.documentDirectory}${fileName}`
+        await FileSystem.copyAsync({ from: imageUri, to: destUri })
+        finalPhotoUri = destUri
       }
 
       await createDish({
@@ -51,15 +51,15 @@ export default function AddDishScreen() {
         description: description.trim(),
         category,
         photoUri: finalPhotoUri,
-      });
+      })
 
-      router.back();
+      router.back()
     } catch (e) {
-      Alert.alert('Error', 'Failed to save dish. Please try again.');
+      Alert.alert('Error', 'Failed to save dish. Please try again.')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -161,7 +161,7 @@ export default function AddDishScreen() {
         />
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -213,4 +213,4 @@ const styles = StyleSheet.create({
     bottom: 32,
     right: 20,
   },
-});
+})

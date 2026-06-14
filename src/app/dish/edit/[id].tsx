@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import {
   StyleSheet,
   View,
@@ -9,57 +9,57 @@ import {
   Platform,
   Alert,
   ActivityIndicator,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import * as FileSystem from 'expo-file-system/legacy';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useTheme } from '@/theme/ThemeContext';
-import { getDishById, updateDish } from '@/db/dishRepository';
-import { CATEGORIES, Category, Dish } from '@/types/dish';
-import ImagePickerField from '@/components/ImagePickerField';
-import CategoryPicker from '@/components/CategoryPicker';
-import FloatingActionButton from '@/components/FloatingActionButton';
+} from 'react-native'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import * as FileSystem from 'expo-file-system/legacy'
+import Animated, { FadeInDown } from 'react-native-reanimated'
+import { useTheme } from '@/theme/ThemeContext'
+import { getDishById, updateDish } from '@/db/dishRepository'
+import { CATEGORIES, Category, Dish } from '@/types/dish'
+import ImagePickerField from '@/components/ImagePickerField'
+import CategoryPicker from '@/components/CategoryPicker'
+import FloatingActionButton from '@/components/FloatingActionButton'
 
 export default function EditDishScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
-  const { colors } = useTheme();
-  const [dish, setDish] = useState<Dish | null>(null);
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<Category>(CATEGORIES[0]);
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const router = useRouter()
+  const { colors } = useTheme()
+  const [dish, setDish] = useState<Dish | null>(null)
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [category, setCategory] = useState<Category>(CATEGORIES[0])
+  const [imageUri, setImageUri] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     async function load() {
       if (id) {
-        const result = await getDishById(Number(id));
+        const result = await getDishById(Number(id))
         if (result) {
-          setDish(result);
-          setName(result.name);
-          setDescription(result.description);
-          setCategory(result.category);
-          setImageUri(result.photoUri);
+          setDish(result)
+          setName(result.name)
+          setDescription(result.description)
+          setCategory(result.category)
+          setImageUri(result.photoUri)
         }
       }
-      setLoading(false);
+      setLoading(false)
     }
-    load();
-  }, [id]);
+    load()
+  }, [id])
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('Name required', 'Please enter a dish name.');
-      return;
+      Alert.alert('Name required', 'Please enter a dish name.')
+      return
     }
 
-    if (!dish) return;
+    if (!dish) return
 
-    setSaving(true);
+    setSaving(true)
     try {
-      let finalPhotoUri = imageUri;
+      let finalPhotoUri = imageUri
 
       // Copy new image to document directory if it's from picker
       if (
@@ -67,10 +67,10 @@ export default function EditDishScreen() {
         imageUri !== dish.photoUri &&
         !imageUri.startsWith(FileSystem.documentDirectory || '')
       ) {
-        const fileName = `dish_${Date.now()}.jpg`;
-        const destUri = `${FileSystem.documentDirectory}${fileName}`;
-        await FileSystem.copyAsync({ from: imageUri, to: destUri });
-        finalPhotoUri = destUri;
+        const fileName = `dish_${Date.now()}.jpg`
+        const destUri = `${FileSystem.documentDirectory}${fileName}`
+        await FileSystem.copyAsync({ from: imageUri, to: destUri })
+        finalPhotoUri = destUri
       }
 
       await updateDish(dish.id, {
@@ -78,22 +78,22 @@ export default function EditDishScreen() {
         description: description.trim(),
         category,
         photoUri: finalPhotoUri,
-      });
+      })
 
-      router.back();
+      router.back()
     } catch (e) {
-      Alert.alert('Error', 'Failed to update dish. Please try again.');
+      Alert.alert('Error', 'Failed to update dish. Please try again.')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   if (loading) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
-    );
+    )
   }
 
   if (!dish) {
@@ -101,7 +101,7 @@ export default function EditDishScreen() {
       <View style={[styles.center, { backgroundColor: colors.background }]}>
         <Text style={{ color: colors.textSecondary, fontSize: 16 }}>Dish not found</Text>
       </View>
-    );
+    )
   }
 
   return (
@@ -204,7 +204,7 @@ export default function EditDishScreen() {
         />
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -261,4 +261,4 @@ const styles = StyleSheet.create({
     bottom: 32,
     right: 20,
   },
-});
+})

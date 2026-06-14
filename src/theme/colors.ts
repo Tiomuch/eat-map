@@ -23,7 +23,7 @@ export const lightColors = {
   shimmer: '#E5E7EB',
   categoryChip: '#F0EEFF',
   categoryChipText: '#6C63FF',
-};
+}
 
 export const darkColors = {
   background: '#0F0F1A',
@@ -50,6 +50,6 @@ export const darkColors = {
   shimmer: '#2D2D44',
   categoryChip: '#2D2B4E',
   categoryChipText: '#A5A0FF',
-};
+}
 
-export type Colors = typeof lightColors;
+export type Colors = typeof lightColors

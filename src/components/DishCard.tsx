@@ -1,19 +1,19 @@
-import { useTheme } from '@/theme/ThemeContext';
-import { Dish } from '@/types/dish';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import { useTheme } from '@/theme/ThemeContext'
+import { Dish } from '@/types/dish'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { Image } from 'expo-image'
+import { useRouter } from 'expo-router'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+import Animated, { FadeIn } from 'react-native-reanimated'
 
 interface DishCardProps {
-  dish: Dish;
-  onPress?: () => void;
-  isCenter?: boolean;
-  showScheduleButton?: boolean;
+  dish: Dish
+  onPress?: () => void
+  isCenter?: boolean
+  showScheduleButton?: boolean
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 export default function DishCard({
   dish,
@@ -21,8 +21,8 @@ export default function DishCard({
   isCenter = false,
   showScheduleButton = true,
 }: DishCardProps) {
-  const { colors } = useTheme();
-  const router = useRouter();
+  const { colors } = useTheme()
+  const router = useRouter()
 
   const handleSchedulePress = () => {
     router.push({
@@ -33,8 +33,8 @@ export default function DishCard({
         dishPhoto: encodeURIComponent(dish.photoUri || ''),
         dishCategory: dish.category,
       },
-    } as any);
-  };
+    } as any)
+  }
 
   return (
     <AnimatedPressable
@@ -77,7 +77,7 @@ export default function DishCard({
         )}
       </View>
     </AnimatedPressable>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -149,4 +149,4 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
-});
+})
