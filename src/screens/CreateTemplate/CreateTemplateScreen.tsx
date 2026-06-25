@@ -34,6 +34,7 @@ export default function CreateTemplateScreen() {
   const date = Array.isArray(params.date) ? params.date[0] : params.date || ''
 
   const [items, setItems] = useState<ScheduleItem[]>([])
+  const [initialItemsStr, setInitialItemsStr] = useState<string>('[]')
   
   // Modals state
   const [showSaveModal, setShowSaveModal] = useState(false)
@@ -47,6 +48,7 @@ export default function CreateTemplateScreen() {
     if (!date) return
     const scheduleItems = await getScheduleForDate(date)
     setItems(scheduleItems)
+    setInitialItemsStr(JSON.stringify(scheduleItems))
   }, [date])
 
   useFocusEffect(
@@ -72,6 +74,15 @@ export default function CreateTemplateScreen() {
       router.back()
     } catch (error) {
       Alert.alert('Error', 'Failed to save template')
+    }
+  }
+
+  const handleCancelPress = () => {
+    const hasChanges = JSON.stringify(items) !== initialItemsStr
+    if (hasChanges) {
+      setShowCancelModal(true)
+    } else {
+      router.back()
     }
   }
 
@@ -103,10 +114,22 @@ export default function CreateTemplateScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Create Template</Text>
-        <Text style={[styles.subtitle, { color: colors.textTertiary }]}>
-          Based on {date}
-        </Text>
+        <View style={styles.headerTopRow}>
+          <FloatingActionButton
+            icon="arrow-left"
+            color={colors.text}
+            backgroundColor={colors.surfaceVariant}
+            onPress={handleCancelPress}
+            size={44}
+          />
+          <View style={{ alignItems: 'center' }}>
+            <Text style={[styles.title, { color: colors.text }]}>Create Template</Text>
+            <Text style={[styles.subtitle, { color: colors.textTertiary }]}>
+              Based on {date}
+            </Text>
+          </View>
+          <View style={{ width: 44 }} />
+        </View>
       </View>
 
       <ScrollView
@@ -155,15 +178,16 @@ export default function CreateTemplateScreen() {
       <View style={styles.bottomButtons}>
         <Pressable
           style={[styles.bottomBtn, { backgroundColor: colors.surfaceVariant }]}
-          onPress={() => setShowCancelModal(true)}
+          onPress={handleCancelPress}
         >
-          <Text style={[styles.bottomBtnText, { color: colors.text }]}>Cancel</Text>
+          <MaterialCommunityIcons name="close" size={24} color={colors.danger} />
         </Pressable>
         <Pressable
-          style={[styles.bottomBtn, { backgroundColor: colors.primary }]}
+          style={[styles.bottomBtn, { backgroundColor: items.length === 0 ? colors.surfaceVariant : '#10b981' }]}
+          disabled={items.length === 0}
           onPress={() => setShowSaveModal(true)}
         >
-          <Text style={[styles.bottomBtnText, { color: '#fff' }]}>Save</Text>
+          <MaterialCommunityIcons name="check" size={24} color={items.length === 0 ? colors.textTertiary : '#fff'} />
         </Pressable>
       </View>
 

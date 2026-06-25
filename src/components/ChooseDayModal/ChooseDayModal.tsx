@@ -4,7 +4,7 @@ import { useTheme } from '@/theme/ThemeContext'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useEffect, useState } from 'react'
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native'
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated'
+import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, runOnJS } from 'react-native-reanimated'
 import { styles } from './ChooseDayModal.styles'
 
 
@@ -71,39 +71,39 @@ export default function ChooseDayModal({ visible, onApply, onClose }: ChooseDayM
           exiting={SlideOutDown.duration(200)}
           style={[styles.modal, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.title, { color: colors.text }]}>Apply Template</Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Pick a day to apply this template to.
-          </Text>
+            <Text style={[styles.title, { color: colors.text }]}>Apply Template</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              Pick a day to apply this template to.
+            </Text>
 
-          <View style={styles.chipsContainer}>
-            <DayChipsPicker
-              dayChips={dayChips}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-            />
-          </View>
+            <View style={styles.chipsContainer}>
+              <DayChipsPicker
+                dayChips={dayChips}
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+              />
+            </View>
 
-          <View style={styles.buttonRow}>
-            <Pressable
-              onPress={onClose}
-              style={[styles.button, styles.cancelButton, { borderColor: colors.border }]}
-            >
-              <MaterialCommunityIcons name="close" size={24} color={colors.textSecondary} />
-            </Pressable>
+            <View style={styles.buttonRow}>
+              <Pressable
+                onPress={onClose}
+                style={[styles.button, styles.cancelButton, { borderColor: colors.border }]}
+              >
+                <MaterialCommunityIcons name="close" size={24} color={colors.textSecondary} />
+              </Pressable>
 
-            <Pressable
-              onPress={handleApply}
-              disabled={!selectedDate}
-              style={[
-                styles.button,
-                styles.applyButton,
-                { backgroundColor: selectedDate ? colors.primary : colors.surfaceVariant },
-              ]}
-            >
-              <MaterialCommunityIcons name="check" size={24} color={selectedDate ? '#fff' : colors.textTertiary} />
-            </Pressable>
-          </View>
+              <Pressable
+                onPress={handleApply}
+                disabled={!selectedDate}
+                style={[
+                  styles.button,
+                  styles.applyButton,
+                  { backgroundColor: selectedDate ? colors.primary : colors.surfaceVariant },
+                ]}
+              >
+                <MaterialCommunityIcons name="check" size={24} color={selectedDate ? '#fff' : colors.textTertiary} />
+              </Pressable>
+            </View>
         </Animated.View>
       </View>
     </Modal>

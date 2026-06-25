@@ -2,9 +2,10 @@ import { useTheme } from '@/theme/ThemeContext'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated'
+import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, runOnJS } from 'react-native-reanimated'
 import { styles } from './SaveTemplateModal.styles'
 
+import { isTemplateNameUnique } from '@/db/templateRepository/templateRepository'
 
 interface SaveTemplateModalProps {
   visible: boolean
@@ -15,16 +16,33 @@ interface SaveTemplateModalProps {
 export default function SaveTemplateModal({ visible, onSave, onClose }: SaveTemplateModalProps) {
   const { colors } = useTheme()
   const [name, setName] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
 
-  const handleSave = () => {
-    if (name.trim()) {
-      onSave(name.trim())
-      setName('')
+  const handleSave = async () => {
+    const trimmed = name.trim()
+    if (!trimmed) {
+      setError('Template name cannot be empty')
+      return
     }
+
+    setIsSaving(true)
+    const isUnique = await isTemplateNameUnique(trimmed)
+    setIsSaving(false)
+
+    if (!isUnique) {
+      setError('A template with this name already exists')
+      return
+    }
+
+    onSave(trimmed)
+    setName('')
+    setError(null)
   }
 
   const handleClose = () => {
     setName('')
+    setError(null)
     onClose()
   }
 
@@ -44,41 +62,49 @@ export default function SaveTemplateModal({ visible, onSave, onClose }: SaveTemp
           exiting={SlideOutDown.duration(200)}
           style={[styles.modal, { backgroundColor: colors.surface }]}
         >
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: colors.text }]}>Save Template</Text>
-            <Pressable onPress={handleClose} style={styles.closeBtn}>
-              <MaterialCommunityIcons name="close" size={24} color={colors.textSecondary} />
-            </Pressable>
-          </View>
+            <View style={styles.header}>
+              <Text style={[styles.title, { color: colors.text }]}>Save Template</Text>
+              <Pressable onPress={handleClose} style={styles.closeBtn}>
+                <MaterialCommunityIcons name="close" size={24} color={colors.textSecondary} />
+              </Pressable>
+            </View>
 
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Give a name to your new template.
-          </Text>
-
-          <TextInput
-            style={[
-              styles.input,
-              { color: colors.text, borderColor: colors.border, backgroundColor: colors.background },
-            ]}
-            placeholder="e.g., Healthy Weekday"
-            placeholderTextColor={colors.textTertiary}
-            value={name}
-            onChangeText={setName}
-            autoFocus
-          />
-
-          <Pressable
-            onPress={handleSave}
-            disabled={!name.trim()}
-            style={[
-              styles.saveBtn,
-              { backgroundColor: name.trim() ? colors.primary : colors.surfaceVariant },
-            ]}
-          >
-            <Text style={[styles.saveBtnText, { color: name.trim() ? '#fff' : colors.textTertiary }]}>
-              Save Template
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              Give a name to your new template.
             </Text>
-          </Pressable>
+
+            <TextInput
+              style={[
+                styles.input,
+                { color: colors.text, backgroundColor: colors.surfaceVariant, borderColor: error ? colors.danger : colors.border },
+              ]}
+              placeholder="e.g. Weekday Breakfasts"
+              placeholderTextColor={colors.textTertiary}
+              value={name}
+              onChangeText={(text) => {
+                setName(text)
+                if (error) setError(null)
+              }}
+              autoFocus
+            />
+            {error ? (
+              <Text style={[styles.errorText, { color: colors.danger, marginTop: -8, marginBottom: 16, marginLeft: 4 }]}>
+                {error}
+              </Text>
+            ) : null}
+
+            <Pressable
+              onPress={handleSave}
+              disabled={isSaving || !name.trim()}
+              style={[
+                styles.saveBtn,
+                { backgroundColor: name.trim() ? colors.primary : colors.surfaceVariant },
+              ]}
+            >
+              <Text style={[styles.saveBtnText, { color: name.trim() ? '#fff' : colors.textTertiary }]}>
+                Save Template
+              </Text>
+            </Pressable>
         </Animated.View>
       </View>
     </Modal>

@@ -1,7 +1,8 @@
 import ChooseDayModal from '@/components/ChooseDayModal/ChooseDayModal'
 import ConfirmModal from '@/components/ConfirmModal/ConfirmModal'
+import FloatingActionButton from '@/components/FloatingActionButton/FloatingActionButton'
 import AddDishToTemplateModal from '@/components/AddDishToTemplateModal/AddDishToTemplateModal'
-import { getTemplateItems, updateTemplateItems } from '@/db/templateRepository/templateRepository'
+import { getTemplate, getTemplateItems, updateTemplate, isTemplateNameUnique, deleteTemplate } from '@/db/templateRepository/templateRepository'
 import { addToSchedule, clearScheduleForDate } from '@/db/scheduleRepository/scheduleRepository'
 import { ScheduleCard } from '@/screens/Schedule/components/ScheduleCard/ScheduleCard'
 import { useTheme } from '@/theme/ThemeContext'
@@ -9,7 +10,7 @@ import { CATEGORIES, Category, Dish, ScheduleItem, TemplateItem } from '@/types/
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useState } from 'react'
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native'
+import { Alert, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated'
 import { styles } from '../CreateTemplate/CreateTemplateScreen.styles' // reuse styles
 
@@ -32,6 +33,11 @@ export default function EditTemplateScreen() {
   const templateId = Number(params.id)
 
   const [items, setItems] = useState<TemplateItem[]>([])
+  const [initialItemsStr, setInitialItemsStr] = useState<string>('[]')
+  
+  const [templateName, setTemplateName] = useState('')
+  const [originalName, setOriginalName] = useState('')
+  const [nameError, setNameError] = useState<string | null>(null)
 
   // Modals state
   const [showCancelModal, setShowCancelModal] = useState(false)
@@ -43,8 +49,14 @@ export default function EditTemplateScreen() {
 
   const loadData = useCallback(async () => {
     if (!templateId) return
+    const template = await getTemplate(templateId)
+    if (template) {
+      setTemplateName(template.name)
+      setOriginalName(template.name)
+    }
     const templateItems = await getTemplateItems(templateId)
     setItems(templateItems)
+    setInitialItemsStr(JSON.stringify(templateItems))
   }, [templateId])
 
   useFocusEffect(
@@ -61,9 +73,24 @@ export default function EditTemplateScreen() {
   }
 
   const handleSave = async () => {
+    const trimmedName = templateName.trim()
+    if (!trimmedName) {
+      setNameError('Template name cannot be empty')
+      return
+    }
+
+    if (trimmedName !== originalName) {
+      const isUnique = await isTemplateNameUnique(trimmedName, templateId)
+      if (!isUnique) {
+        setNameError('A template with this name already exists')
+        return
+      }
+    }
+
     try {
-      await updateTemplateItems(
+      await updateTemplate(
         templateId,
+        trimmedName,
         items.map((it) => ({ dishId: it.dishId, category: it.category })),
       )
       router.back()
@@ -73,15 +100,30 @@ export default function EditTemplateScreen() {
   }
 
   const handleApplyTemplate = async (date: string) => {
+    const trimmedName = templateName.trim()
+    if (!trimmedName) {
+      setNameError('Template name cannot be empty')
+      setShowChooseDayModal(false)
+      return
+    }
+
+    if (trimmedName !== originalName) {
+      const isUnique = await isTemplateNameUnique(trimmedName, templateId)
+      if (!isUnique) {
+        setNameError('A template with this name already exists')
+        setShowChooseDayModal(false)
+        return
+      }
+    }
+
     setShowChooseDayModal(false)
     try {
-      // First save the template
-      await updateTemplateItems(
+      await updateTemplate(
         templateId,
+        trimmedName,
         items.map((it) => ({ dishId: it.dishId, category: it.category })),
       )
       
-      // Then apply to schedule
       await clearScheduleForDate(date)
       for (const item of items) {
         await addToSchedule(item.dishId, date, item.category)
@@ -93,9 +135,36 @@ export default function EditTemplateScreen() {
     }
   }
 
+  const handleCancelPress = () => {
+    const hasChanges = JSON.stringify(items) !== initialItemsStr || templateName.trim() !== originalName
+    if (hasChanges) {
+      setShowCancelModal(true)
+    } else {
+      router.back()
+    }
+  }
+
   const handleCancel = () => {
     setShowCancelModal(false)
     router.back()
+  }
+
+  const handleDeleteTemplate = () => {
+    Alert.alert(
+      'Delete Template',
+      'Are you sure you want to delete this template?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteTemplate(templateId)
+            router.back()
+          },
+        },
+      ]
+    )
   }
 
   const handleAddDish = (dish: Dish) => {
@@ -121,7 +190,45 @@ export default function EditTemplateScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Edit Template</Text>
+        <View style={styles.headerTopRow}>
+          <FloatingActionButton
+            icon="arrow-left"
+            color={colors.text}
+            backgroundColor={colors.surfaceVariant}
+            onPress={handleCancelPress}
+            size={44}
+          />
+          <Text style={[styles.title, { color: colors.text }]}>Edit Template</Text>
+          <View style={{ width: 44 }} />
+        </View>
+        <TextInput
+          style={[
+            {
+              fontSize: 16,
+              fontWeight: '500',
+              color: colors.text,
+              backgroundColor: colors.surfaceVariant,
+              padding: 12,
+              borderRadius: 12,
+              width: '100%',
+              marginTop: 16,
+              borderColor: nameError ? colors.danger : colors.border,
+              borderWidth: 1,
+            }
+          ]}
+          value={templateName}
+          onChangeText={(text) => {
+            setTemplateName(text)
+            if (nameError) setNameError(null)
+          }}
+          placeholder="Template Name"
+          placeholderTextColor={colors.textTertiary}
+        />
+        {nameError ? (
+          <Text style={{ color: colors.danger, marginTop: 4, fontSize: 12, alignSelf: 'flex-start' }}>
+            {nameError}
+          </Text>
+        ) : null}
       </View>
 
       <ScrollView
@@ -173,22 +280,30 @@ export default function EditTemplateScreen() {
       {/* Absolute Bottom Buttons */}
       <View style={styles.bottomButtons}>
         <Pressable
+          style={[styles.bottomBtn, { backgroundColor: colors.danger }]}
+          onPress={handleDeleteTemplate}
+        >
+          <MaterialCommunityIcons name="trash-can-outline" size={24} color="#fff" />
+        </Pressable>
+        <Pressable
           style={[styles.bottomBtn, { backgroundColor: colors.surfaceVariant }]}
-          onPress={() => setShowCancelModal(true)}
+          onPress={handleCancelPress}
         >
-          <Text style={[styles.bottomBtnText, { color: colors.text }]}>Cancel</Text>
+          <MaterialCommunityIcons name="close" size={24} color={colors.textSecondary} />
         </Pressable>
         <Pressable
-          style={[styles.bottomBtn, { backgroundColor: colors.primary }]}
-          onPress={handleSave}
-        >
-          <Text style={[styles.bottomBtnText, { color: '#fff' }]}>Save</Text>
-        </Pressable>
-        <Pressable
-          style={[styles.bottomBtn, { backgroundColor: colors.primary }]}
+          style={[styles.bottomBtn, { backgroundColor: items.length === 0 ? colors.surfaceVariant : colors.primary }]}
+          disabled={items.length === 0}
           onPress={() => setShowChooseDayModal(true)}
         >
-          <Text style={[styles.bottomBtnText, { color: '#fff' }]}>Apply</Text>
+          <MaterialCommunityIcons name="calendar-arrow-right" size={24} color={items.length === 0 ? colors.textTertiary : '#fff'} />
+        </Pressable>
+        <Pressable
+          style={[styles.bottomBtn, { backgroundColor: items.length === 0 || !templateName.trim() ? colors.surfaceVariant : '#10b981' }]}
+          disabled={items.length === 0 || !templateName.trim()}
+          onPress={handleSave}
+        >
+          <MaterialCommunityIcons name="check" size={24} color={items.length === 0 || !templateName.trim() ? colors.textTertiary : '#fff'} />
         </Pressable>
       </View>
 

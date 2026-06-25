@@ -3,7 +3,9 @@ import { StyleSheet } from 'react-native'
 export const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
   },
   backdrop: {
     position: 'absolute',
@@ -14,11 +16,12 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   modal: {
+    width: '100%',
+    maxWidth: 400,
     padding: 24,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingBottom: 40,
+    borderRadius: 24,
     maxHeight: '80%',
+    overflow: 'hidden',
   },
   title: {
     fontSize: 20,
@@ -31,6 +34,7 @@ export const styles = StyleSheet.create({
   },
   list: {
     flexGrow: 0,
+    flexShrink: 1,
     marginBottom: 24,
   },
   listContent: {

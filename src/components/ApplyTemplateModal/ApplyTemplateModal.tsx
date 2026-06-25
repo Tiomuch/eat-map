@@ -2,7 +2,7 @@ import { useTheme } from '@/theme/ThemeContext'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useEffect, useState } from 'react'
 import { Modal, Pressable, StyleSheet, Text, View, FlatList } from 'react-native'
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated'
+import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown, runOnJS } from 'react-native-reanimated'
 import { styles } from './ApplyTemplateModal.styles'
 
 import { getTemplates } from '@/db/templateRepository/templateRepository'
@@ -72,42 +72,42 @@ export default function ApplyTemplateModal({ visible, onApply, onClose }: ApplyT
           exiting={SlideOutDown.duration(200)}
           style={[styles.modal, { backgroundColor: colors.surface }]}
         >
-          <Text style={[styles.title, { color: colors.text }]}>Apply Template</Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Select a template to apply.
-          </Text>
+            <Text style={[styles.title, { color: colors.text }]}>Apply Template</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              Select a template to apply.
+            </Text>
 
-          <FlatList
-            data={templates}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderItem}
-            contentContainerStyle={styles.listContent}
-            style={styles.list}
-            ListEmptyComponent={
-              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No templates found.</Text>
-            }
-          />
+            <FlatList
+              data={templates}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={renderItem}
+              contentContainerStyle={styles.listContent}
+              style={[styles.list, { minHeight: 150 }]}
+              ListEmptyComponent={
+                <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No templates found.</Text>
+              }
+            />
 
-          <View style={styles.buttonRow}>
-            <Pressable
-              onPress={onClose}
-              style={[styles.button, styles.cancelButton, { borderColor: colors.border }]}
-            >
-              <MaterialCommunityIcons name="close" size={24} color={colors.textSecondary} />
-            </Pressable>
+            <View style={styles.buttonRow}>
+              <Pressable
+                onPress={onClose}
+                style={[styles.button, styles.cancelButton, { borderColor: colors.border }]}
+              >
+                <MaterialCommunityIcons name="close" size={24} color={colors.textSecondary} />
+              </Pressable>
 
-            <Pressable
-              onPress={handleApply}
-              disabled={selectedId === null}
-              style={[
-                styles.button,
-                styles.applyButton,
-                { backgroundColor: selectedId !== null ? colors.primary : colors.surfaceVariant },
-              ]}
-            >
-              <MaterialCommunityIcons name="check" size={24} color={selectedId !== null ? '#fff' : colors.textTertiary} />
-            </Pressable>
-          </View>
+              <Pressable
+                onPress={handleApply}
+                disabled={selectedId === null}
+                style={[
+                  styles.button,
+                  styles.applyButton,
+                  { backgroundColor: selectedId !== null ? colors.primary : colors.surfaceVariant },
+                ]}
+              >
+                <MaterialCommunityIcons name="check" size={24} color={selectedId !== null ? '#fff' : colors.textTertiary} />
+              </Pressable>
+            </View>
         </Animated.View>
       </View>
     </Modal>

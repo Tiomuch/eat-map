@@ -21,6 +21,31 @@ export async function createTemplate(input: CreateTemplateInput): Promise<number
   return templateId
 }
 
+export async function isTemplateNameUnique(name: string, excludeId?: number): Promise<boolean> {
+  const db = await getDatabase()
+  if (excludeId) {
+    const row = await db.getFirstAsync('SELECT id FROM templates WHERE name = ? AND id != ?', [name, excludeId])
+    return !row
+  } else {
+    const row = await db.getFirstAsync('SELECT id FROM templates WHERE name = ?', [name])
+    return !row
+  }
+}
+
+export async function getTemplate(id: number): Promise<Template | null> {
+  const db = await getDatabase()
+  const row = await db.getFirstAsync<{ id: number; name: string; created_at: string }>(
+    'SELECT * FROM templates WHERE id = ?',
+    [id]
+  )
+  if (!row) return null
+  return {
+    id: row.id,
+    name: row.name,
+    createdAt: row.created_at,
+  }
+}
+
 export async function getTemplates(): Promise<Template[]> {
   const db = await getDatabase()
   const rows = await db.getAllAsync<{ id: number; name: string; created_at: string }>(
@@ -70,10 +95,11 @@ export async function deleteTemplate(templateId: number): Promise<void> {
   await db.runAsync('DELETE FROM templates WHERE id = ?', [templateId])
 }
 
-export async function updateTemplateItems(templateId: number, items: { dishId: number; category: Category }[]): Promise<void> {
+export async function updateTemplate(templateId: number, name: string, items: { dishId: number; category: Category }[]): Promise<void> {
   const db = await getDatabase()
 
   await db.withTransactionAsync(async () => {
+    await db.runAsync('UPDATE templates SET name = ? WHERE id = ?', [name, templateId])
     await db.runAsync('DELETE FROM template_items WHERE template_id = ?', [templateId])
 
     for (const item of items) {

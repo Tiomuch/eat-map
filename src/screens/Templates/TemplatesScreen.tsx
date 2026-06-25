@@ -49,7 +49,13 @@ export default function TemplatesScreen() {
             size={44}
           />
           <Text style={[styles.title, { color: colors.text }]}>Templates</Text>
-          <View style={{ width: 44 }} />
+          <FloatingActionButton
+            icon="plus"
+            color="#fff"
+            backgroundColor={colors.success}
+            onPress={() => router.push('/create-template')}
+            size={44}
+          />
         </View>
 
         <View style={styles.searchContainer}>

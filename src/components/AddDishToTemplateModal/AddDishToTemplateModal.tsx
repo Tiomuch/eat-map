@@ -18,8 +18,9 @@ interface AddDishToTemplateModalProps {
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
-const CARD_WIDTH = SCREEN_WIDTH * 0.7
-const CARD_HEIGHT = SCREEN_WIDTH * 0.9
+const MODAL_WIDTH = Math.min(SCREEN_WIDTH - 48, 400)
+const CARD_WIDTH = MODAL_WIDTH * 0.75
+const CARD_HEIGHT = MODAL_WIDTH * 0.95
 
 export default function AddDishToTemplateModal({
   visible,
@@ -80,30 +81,30 @@ export default function AddDishToTemplateModal({
             </Pressable>
           </View>
 
-          {dishes.length === 0 ? (
-            <Text style={[styles.emptyText, { color: colors.textTertiary }]}>
-              No dishes found for this category.
-            </Text>
-          ) : (
-            <View style={{ height: CARD_HEIGHT, marginTop: 16 }}>
+          <View style={{ height: CARD_HEIGHT, marginTop: 16, justifyContent: 'center' }}>
+            {dishes.length === 0 ? (
+              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>
+                No dishes found for this category.
+              </Text>
+            ) : (
               <Carousel
                 loop={dishes.length > 1}
-                width={SCREEN_WIDTH}
+                width={MODAL_WIDTH}
                 height={CARD_HEIGHT}
                 data={dishes}
                 customAnimation={animationStyle}
                 scrollAnimationDuration={600}
                 renderItem={({ item, index }) => (
                   <View
-                    style={[styles.cardWrapper, { paddingHorizontal: (SCREEN_WIDTH - CARD_WIDTH) / 2 }]}
+                    style={[styles.cardWrapper, { paddingHorizontal: (MODAL_WIDTH - CARD_WIDTH) / 2 }]}
                     key={`${item.id}-${index}`}
                   >
-                    <DishCard dish={item} onPress={() => onAdd(item)} />
+                    <DishCard dish={item} onPress={() => onAdd(item)} showScheduleButton={false} />
                   </View>
                 )}
               />
-            </View>
-          )}
+            )}
+          </View>
         </Animated.View>
       </View>
     </Modal>

@@ -1,6 +1,7 @@
 import { useTheme } from '@/theme/ThemeContext'
 import { Template } from '@/types/dish'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useState } from 'react'
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import Animated, {
@@ -27,8 +28,20 @@ export default function TemplateCard({ template, onPress, onDelete }: TemplateCa
   const translateX = useSharedValue(0)
   const itemHeight = useSharedValue(-1) // for collapse animation
   const opacity = useSharedValue(1)
+  const [measuredHeight, setMeasuredHeight] = useState(0)
+
+  const performDelete = () => {
+    if (itemHeight.value === -1 && measuredHeight > 0) {
+      itemHeight.value = measuredHeight
+    }
+    opacity.value = withTiming(0, { duration: 200 })
+    itemHeight.value = withTiming(0, { duration: 300 }, () => {
+      runOnJS(onDelete)()
+    })
+  }
 
   const panGesture = Gesture.Pan()
+    .activeOffsetX([-10, 10])
     .onUpdate((event) => {
       // Only allow swipe to left
       if (event.translationX < 0) {
@@ -39,7 +52,7 @@ export default function TemplateCard({ template, onPress, onDelete }: TemplateCa
       if (translateX.value < TRANSLATE_X_THRESHOLD) {
         // Swipe was far enough, trigger delete
         translateX.value = withTiming(-SCREEN_WIDTH, {}, () => {
-          runOnJS(onDelete)()
+          runOnJS(performDelete)()
         })
       } else if (translateX.value < -80) {
         // Snap to reveal delete button
@@ -72,14 +85,19 @@ export default function TemplateCard({ template, onPress, onDelete }: TemplateCa
   })
 
   return (
-    <Animated.View style={[styles.container, rContainerStyle]}>
+    <Animated.View 
+      style={[styles.container, rContainerStyle]}
+      onLayout={(e) => {
+        if (measuredHeight === 0) setMeasuredHeight(e.nativeEvent.layout.height)
+      }}
+    >
       {/* Background action (Delete) */}
       <View style={[styles.deleteBackground, { backgroundColor: colors.danger }]}>
         <Pressable
           style={styles.deleteButtonPressable}
           onPress={() => {
             translateX.value = withTiming(-SCREEN_WIDTH, {}, () => {
-              runOnJS(onDelete)()
+              runOnJS(performDelete)()
             })
           }}
         >
