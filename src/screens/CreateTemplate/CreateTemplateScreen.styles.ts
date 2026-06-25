@@ -1,0 +1,88 @@
+import { StyleSheet } from 'react-native'
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 60,
+  },
+  header: {
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '800',
+  },
+  subtitle: {
+    fontSize: 14,
+    marginTop: 4,
+  },
+  scroll: {
+    flex: 1,
+  },
+  content: {
+    paddingBottom: 120, // space for bottom buttons
+  },
+  categorySection: {
+    marginBottom: 24,
+  },
+  categorySectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 20,
+    marginBottom: 12,
+  },
+  categorySectionEmoji: {
+    fontSize: 22,
+  },
+  categorySectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  cardsRow: {
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  addButtonWrapper: {
+    width: 130,
+    alignItems: 'center',
+  },
+  addButton: {
+    width: 120,
+    height: 100,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bottomButtons: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    padding: 16,
+    paddingBottom: 32,
+    gap: 12,
+    backgroundColor: 'transparent',
+  },
+  bottomBtn: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  bottomBtnText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+})

@@ -39,6 +39,26 @@ export async function initDatabase(): Promise<void> {
     );
   `)
 
+  await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+  `)
+
+  await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS template_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      template_id INTEGER NOT NULL,
+      dish_id INTEGER NOT NULL,
+      category TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE CASCADE,
+      FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE
+    );
+  `)
+
   // Check if we need to seed data
   const result = await database.getFirstAsync<{ count: number }>(
     'SELECT COUNT(*) as count FROM dishes',

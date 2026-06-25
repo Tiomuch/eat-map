@@ -1,16 +1,20 @@
 import ConfirmModal from '@/components/ConfirmModal/ConfirmModal'
 import FloatingActionButton from '@/components/FloatingActionButton/FloatingActionButton'
+import ApplyTemplateModal from '@/components/ApplyTemplateModal/ApplyTemplateModal'
 import {
   cleanupPastScheduleItems,
   getScheduleForWeek,
   getWeekDates,
   removeFromSchedule,
+  clearScheduleForDate,
+  addToSchedule
 } from '@/db/scheduleRepository/scheduleRepository'
+import { getTemplateItems } from '@/db/templateRepository/templateRepository'
 import { useTheme } from '@/theme/ThemeContext'
 import { ScheduleItem } from '@/types/dish'
 import { useFocusEffect, useRouter } from 'expo-router'
 import { useCallback, useState } from 'react'
-import { Pressable, ScrollView, Text, View } from 'react-native'
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native'
 import { DayData, DayPage } from './components/DayPage/DayPage'
 import { styles } from './ScheduleScreen.styles'
 
@@ -45,6 +49,8 @@ export default function ScheduleScreen() {
   const [days, setDays] = useState<DayData[]>([])
   const [currentDayIndex, setCurrentDayIndex] = useState(0)
   const [removeTarget, setRemoveTarget] = useState<ScheduleItem | null>(null)
+  
+  const [showApplyModal, setShowApplyModal] = useState(false)
 
   const loadSchedule = useCallback(async () => {
     // Auto-cleanup past data
@@ -69,6 +75,34 @@ export default function ScheduleScreen() {
     }
   }
 
+  const handleApplyTemplate = async (templateId: number) => {
+    setShowApplyModal(false)
+    const currentDay = days[currentDayIndex]
+    if (!currentDay) return
+
+    try {
+      const items = await getTemplateItems(templateId)
+      await clearScheduleForDate(currentDay.date)
+      
+      for (const item of items) {
+        await addToSchedule(item.dishId, currentDay.date, item.category)
+      }
+      
+      await loadSchedule()
+    } catch (e) {
+      Alert.alert('Error', 'Failed to apply template')
+    }
+  }
+
+  const handleCreateTemplatePress = () => {
+    const currentDay = days[currentDayIndex]
+    if (!currentDay) return
+    router.push({
+      pathname: '/create-template' as any,
+      params: { date: currentDay.date }
+    })
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Selected Day Content */}
@@ -83,6 +117,31 @@ export default function ScheduleScreen() {
           color={colors.text}
           backgroundColor={colors.surfaceVariant}
           onPress={() => router.back()}
+          size={44}
+        />
+      </View>
+
+      {/* Template Buttons */}
+      <View style={styles.templatesButtonsContainer}>
+        <FloatingActionButton
+          icon="content-copy"
+          color="#FFFFFF"
+          backgroundColor={colors.primary}
+          onPress={handleCreateTemplatePress}
+          size={44}
+        />
+        <FloatingActionButton
+          icon="clipboard-text-play"
+          color="#FFFFFF"
+          backgroundColor={colors.primary}
+          onPress={() => setShowApplyModal(true)}
+          size={44}
+        />
+        <FloatingActionButton
+          icon="format-list-bulleted"
+          color="#FFFFFF"
+          backgroundColor={colors.primary}
+          onPress={() => router.push('/templates' as any)}
           size={44}
         />
       </View>
@@ -113,6 +172,12 @@ export default function ScheduleScreen() {
           })}
         </ScrollView>
       </View>
+
+      <ApplyTemplateModal
+        visible={showApplyModal}
+        onClose={() => setShowApplyModal(false)}
+        onApply={handleApplyTemplate}
+      />
 
       {/* Remove confirmation modal */}
       <ConfirmModal

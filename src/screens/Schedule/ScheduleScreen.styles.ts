@@ -37,4 +37,12 @@ export const styles = StyleSheet.create({
     left: 16,
     zIndex: 10,
   },
+  templatesButtonsContainer: {
+    position: 'absolute',
+    bottom: 96,
+    right: 16,
+    gap: 12,
+    alignItems: 'flex-end',
+    zIndex: 10,
+  },
 })

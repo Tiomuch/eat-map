@@ -33,3 +33,23 @@ export interface ScheduleItem {
   dishName: string
   dishPhotoUri: string | null
 }
+
+export interface Template {
+  id: number
+  name: string
+  createdAt: string
+}
+
+export interface TemplateItem {
+  id: number
+  templateId: number
+  dishId: number
+  category: Category
+  dishName: string
+  dishPhotoUri: string | null
+}
+
+export interface CreateTemplateInput {
+  name: string
+  items: { dishId: number; category: Category }[]
+}

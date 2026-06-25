@@ -121,3 +121,11 @@ export async function removeFromSchedule(id: number): Promise<void> {
   const db = await getDatabase()
   await db.runAsync('DELETE FROM schedule_items WHERE id = ?', [id])
 }
+
+/**
+ * Remove all schedule items for a specific date.
+ */
+export async function clearScheduleForDate(date: string): Promise<void> {
+  const db = await getDatabase()
+  await db.runAsync('DELETE FROM schedule_items WHERE date = ?', [date])
+}
